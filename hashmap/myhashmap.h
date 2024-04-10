@@ -457,6 +457,7 @@ MyHashMap<KeyType, ValueType>& MyHashMap<KeyType, ValueType>::operator =(const M
         // deepCopying
         deepCopy(src);
     }
+    return *this;
 }
 
 template <typename KeyType, typename ValueType>
