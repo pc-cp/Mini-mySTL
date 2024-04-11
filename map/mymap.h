@@ -13,7 +13,22 @@
  * 参考：https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/Map
  * 更新：
  *      1. 2024.4.9: 第一版
+ *      2. 2024.4.10: 修复bug：remove方法删除后仅仅修改了key，而没有修改value
+ *
+ *  remove this->   (1,"D")                             X(0,"D") vlaue值没有改变
+ *                 /     \                              /     \
+ *              (0,"A")  (3,"C")     vlaue值没有改变X(-1,"A")  (3,"C")
+ *              /        /     \                              /     \
+ *           (-1,"B")  (2,"E") (5,"F")                      (2,"E") (5,"F")
+ *
+ *     下面是正确的：
+ *            (0,"A")
+ *            /     \
+ *       (-1,"B")  (3,"C")
+ *                 /     \
+ *               (2,"E") (5,"F")
  */
+
 template <typename KeyType, typename ValueType>
 class MyMap{
 public:
@@ -309,16 +324,18 @@ void MyMap<KeyType, ValueType>::remove(const KeyType &key) {
             // 该结点有左孩子（只有左孩子或者是有两个孩子）
             if(cp->left) {
                 TreeNode *rightMostNode = rightMostNodeInLeftSubTree(cp->left);
-                KeyType rightMostNodeKey = rightMostNode->key;
-                remove(rightMostNodeKey);
-                cp->key = rightMostNodeKey;
+                std::pair<KeyType, ValueType> rightMostNodeInfo = {rightMostNode->key, rightMostNode->value};
+                remove(rightMostNodeInfo.first);
+                cp->key = rightMostNodeInfo.first;
+                cp->value = rightMostNodeInfo.second;
             }
             // 该结点仅有右孩子
             else {
                 TreeNode *leftMostNode = leftMostNodeInRightSubTree(cp->right);
-                KeyType leftMostNodeKey = leftMostNode->key;
-                remove(leftMostNodeKey);
-                cp->key = leftMostNodeKey;
+                std::pair<KeyType, ValueType> leftMostNodeInfo = {leftMostNode->key, leftMostNode->value};
+                remove(leftMostNodeInfo.first);
+                cp->key = leftMostNodeInfo.first;
+                cp->value = leftMostNodeInfo.second;
             }
         }
     }
