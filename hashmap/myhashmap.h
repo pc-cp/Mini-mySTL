@@ -167,8 +167,8 @@ private:
         Cell *link;
     };
 
-    /* 负载系数 */
-    constexpr static const double REHASH_THRESHOLD = 0.7;
+    /* 负载系数声明 */
+    static const double REHASH_THRESHOLD;
     /* 初始散列表的长度 */
     static const int INITIAL_BUCKET_COUNT = 10;
 
@@ -207,6 +207,11 @@ private:
      */
     void deepCopy(const MyHashMap<KeyType, ValueType> &src);
 };
+
+
+/* 负载系数初始化 */
+template <typename KeyType, typename ValueType>
+const double MyHashMap<KeyType, ValueType>::REHASH_THRESHOLD = 0.7;
 
 template <typename KeyType, typename ValueType>
 MyHashMap<KeyType, ValueType>::MyHashMap() {

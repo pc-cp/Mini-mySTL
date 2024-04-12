@@ -324,7 +324,7 @@ void MyMap<KeyType, ValueType>::remove(const KeyType &key) {
             // 该结点有左孩子（只有左孩子或者是有两个孩子）
             if(cp->left) {
                 TreeNode *rightMostNode = rightMostNodeInLeftSubTree(cp->left);
-                std::pair<KeyType, ValueType> rightMostNodeInfo = {rightMostNode->key, rightMostNode->value};
+                std::pair<KeyType, ValueType> rightMostNodeInfo(rightMostNode->key, rightMostNode->value);
                 remove(rightMostNodeInfo.first);
                 cp->key = rightMostNodeInfo.first;
                 cp->value = rightMostNodeInfo.second;
@@ -332,7 +332,7 @@ void MyMap<KeyType, ValueType>::remove(const KeyType &key) {
             // 该结点仅有右孩子
             else {
                 TreeNode *leftMostNode = leftMostNodeInRightSubTree(cp->right);
-                std::pair<KeyType, ValueType> leftMostNodeInfo = {leftMostNode->key, leftMostNode->value};
+                std::pair<KeyType, ValueType> leftMostNodeInfo(leftMostNode->key, leftMostNode->value);
                 remove(leftMostNodeInfo.first);
                 cp->key = leftMostNodeInfo.first;
                 cp->value = leftMostNodeInfo.second;

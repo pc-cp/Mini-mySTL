@@ -2,7 +2,6 @@
 #include <string>
 #include <sstream>
 #include "myhashcode.h"
-#include "rational.h"
 /*
  * Implementation notes: myhashCode
  * ------------------------------

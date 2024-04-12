@@ -10,7 +10,6 @@
 #define _myhashcode_h
 
 #include <iostream>
-#include "rational.h"
 
 extern const int HASH_SEED;
 extern const int HASH_MULTIPLIER;
