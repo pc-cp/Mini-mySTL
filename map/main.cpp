@@ -2,6 +2,7 @@
 #include <cassert>
 #include <string>
 #include "mymap.h"
+#include "myvector.h"
 using namespace std;
 int main() {
     MyMap<int, string> mhp;
@@ -48,7 +49,10 @@ int main() {
     mhp.remove(2);
     mhp.remove(3);
     cout << mhp << endl;
-
+    // MyVector<int> keys = mhp.keys();
+    // cout << keys << endl;
+    // MyVector<string> values = mhp.values();
+    // cout << values << endl;
     cout << "Class MyMap unit test succeed." << endl;
 
     return 0;

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sstream>
-
+#include "myvector.h"
 /*
  * 映射内部使用二叉搜索树（BST）结构。由于选择了这种内部表示法，因此存储在 Map 中的键的 KeyType
  * 必须通过 less 函数和/或 < 运算符定义自然排序，以便键可以被比较和排序。
@@ -15,18 +15,27 @@
  *      1. 2024.4.9: 第一版
  *      2. 2024.4.10: 修复bug：remove方法删除后仅仅修改了key，而没有修改value
  *
- *  remove this->   (1,"D")                             X(0,"D") vlaue值没有改变
- *                 /     \                              /     \
- *              (0,"A")  (3,"C")     vlaue值没有改变X(-1,"A")  (3,"C")
- *              /        /     \                              /     \
- *           (-1,"B")  (2,"E") (5,"F")                      (2,"E") (5,"F")
+              remove this->   (1,"D")                             X(0,"D") vlaue值没有改变
+                             /     \                              /     \
+                          (0,"A")  (3,"C")     vlaue值没有改变X(-1,"A")  (3,"C")
+                          /        /     \                              /     \
+                       (-1,"B")  (2,"E") (5,"F")                      (2,"E") (5,"F")
+
+                 下面是正确的：
+                        (0,"A")
+                        /     \
+                   (-1,"B")  (3,"C")
+                             /     \
+                           (2,"E") (5,"F")
  *
- *     下面是正确的：
- *            (0,"A")
- *            /     \
- *       (-1,"B")  (3,"C")
- *                 /     \
- *               (2,"E") (5,"F")
+ *      3. 2024.4.13: 修改了 void inOrder(TreeNode *root, std::ostringstream &os) const;
+ *                    将它变成更通用的
+ *                          void inOrder(TreeNode *root, MyVector<std::pair<KeyType, ValueType>> &res) const;
+
+                      这样bool equals(const MyMap<KeyType, ValueType>& map) const;就不需要
+                      bool equalsRec(const TreeNode *lhs, const TreeNode *rhs) const;
+                      尽管我原先是为了使MyMap对MySet更加支持 bool isSubsetOf(const MySet<ValueType> &set2) const;
+                      为了实现MySet，或许添加 keys() 和 values() 是美好的
  */
 
 template <typename KeyType, typename ValueType>
@@ -88,6 +97,18 @@ public:
     bool isEmpty() const;
 
     /*
+     * Method: keys
+     * Usage: MyVector<KeyType> vec = map.keys();
+     * ------------------------------------------
+     * Returns a Vector copy of all keys in this map.
+     * The keys will appear in the same order that a
+     * for-each loop over the map would produce them.
+     * Because a map cannot contain duplicate keys,
+     * the elements of the vector will be unique.
+     */
+    MyVector<KeyType> keys() const;
+
+    /*
      * 方法：put
      * 使用：map.put(key, value);
      * -------------------------
@@ -118,6 +139,19 @@ public:
      * 将map中的key-value以string类型返回
      */
     std::string toString() const;
+
+
+    /*
+     * Method: values
+     * Usage: MyVector<ValueType> vec = map.values();
+     * ----------------------------------------------
+     * Returns a Vector copy of all values in this map.
+     * The values will appear in the same order that a for-each
+     * loop over the map would produce them.
+     * A map can contain duplicate values, so the elements
+     * of the vector are not guaranteed to be unique.
+     */
+    MyVector<ValueType> values() const;
 
     /*
      * 运算符： []
@@ -222,14 +256,7 @@ private:
      * 因为toString需要遍历整个BST，同时保持key的有序，所以使用
      * 该函数进行遍历，并且将输出存入在ostream对象内
      */
-    void inOrder(TreeNode *root, std::ostringstream &os) const;
-
-    /*
-     * 方法：equalsRec
-     * 使用：因为equals需要判断两个map是否相等，该函数
-     * 使用先序遍历来判断
-     */
-    bool equalsRec(const TreeNode *lhs, const TreeNode *rhs) const;
+    void inOrder(TreeNode *root, MyVector<std::pair<KeyType, ValueType>> &res) const;
 };
 
 
@@ -264,7 +291,18 @@ bool MyMap<KeyType, ValueType>::containsKey(const KeyType &key) const {
 
 template <typename KeyType, typename ValueType>
 bool MyMap<KeyType, ValueType>::equals(const MyMap<KeyType, ValueType> &map) const {
-    return equalsRec(this->root, map.root);
+    MyVector<std::pair<KeyType, ValueType>> inOrder1, inOrder2;
+    inOrder(this->root, inOrder1);
+    inOrder(map.root, inOrder2);
+    if(inOrder1.size() != inOrder2.size()) {
+        return false;
+    }
+    for(int i = 0; i < inOrder1.size(); ++i) {
+        if(inOrder1[i].first != inOrder2[i].first || inOrder1[i].second != inOrder2[i].second) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template <typename KeyType, typename ValueType>
@@ -276,6 +314,18 @@ ValueType MyMap<KeyType, ValueType>::get(const KeyType& key) const {
 template <typename KeyType, typename ValueType>
 bool MyMap<KeyType, ValueType>::isEmpty() const {
     return entries == 0;
+}
+
+template <typename KeyType, typename ValueType>
+MyVector<KeyType> MyMap<KeyType, ValueType>::keys() const {
+    MyVector<KeyType> res;
+
+    MyVector<std::pair<KeyType, ValueType>> inOrder1;
+    inOrder(this->root, inOrder1);
+    for(int i = 0; i < inOrder1.size(); ++i) {
+        res.add(inOrder1[i].first);
+    }
+    return res;
 }
 
 /*
@@ -349,9 +399,30 @@ int MyMap<KeyType, ValueType>::size() const {
 template <typename KeyType, typename ValueType>
 std::string MyMap<KeyType, ValueType>::toString() const {
     std::ostringstream os;
-    inOrder(this->root, os);
+    MyVector<std::pair<KeyType, ValueType>> inOrderResult;
+    inOrder(this->root, inOrderResult);
+    for(int i = 0; i < inOrderResult.size(); ++i) {
+        if(os.str() != "") {
+            os << ", ";
+        }
+        os << "{" << inOrderResult[i].first << ": " << inOrderResult[i].second << "}";
+    }
+
     return os.str();
 }
+
+template <typename KeyType, typename ValueType>
+MyVector<ValueType> MyMap<KeyType, ValueType>::values() const {
+    MyVector<ValueType> res;
+
+    MyVector<std::pair<KeyType, ValueType>> inOrder1;
+    inOrder(this->root, inOrder1);
+    for(int i = 0; i < inOrder1.size(); ++i) {
+        res.add(inOrder1[i].second);
+    }
+    return res;
+}
+
 
 /*
  * 实现笔记：operator<<
@@ -422,17 +493,14 @@ void MyMap<KeyType, ValueType>::deepCopyRec(const TreeNode *rhs) {
 
 
 template <typename KeyType, typename ValueType>
-void MyMap<KeyType, ValueType>::inOrder(TreeNode *root, std::ostringstream &os) const{
+void MyMap<KeyType, ValueType>::inOrder(TreeNode *root, MyVector<std::pair<KeyType, ValueType>> &res) const{
     if(root == nullptr) {
         return ;
     }
     else {
-        inOrder(root->left, os);
-        if(os.str() != "") {
-            os << ", ";
-        }
-        os << "{" << root->key << ": " << root->value << "}";
-        inOrder(root->right, os);
+        inOrder(root->left, res);
+        res.add(std::pair<KeyType, ValueType>(root->key, root->value));
+        inOrder(root->right, res);
     }
 }
 
@@ -514,21 +582,6 @@ typename MyMap<KeyType, ValueType>::TreeNode *  MyMap<KeyType, ValueType>::isExi
         }
         else {
             return isExist(root->right, key);
-        }
-    }
-}
-
-template <typename KeyType, typename ValueType>
-bool MyMap<KeyType, ValueType>::equalsRec(const TreeNode *lhs, const TreeNode *rhs) const {
-    if(lhs == nullptr && lhs == rhs) {
-        return true;
-    }
-    else {
-        if(lhs == nullptr || rhs == nullptr) return false;
-        else {
-            return (lhs->key == rhs->key) && (lhs->value == rhs->value)
-                   && equalsRec(lhs->left, rhs->left)
-                   && equalsRec(lhs->right, rhs->right);
         }
     }
 }
