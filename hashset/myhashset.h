@@ -1,52 +1,50 @@
 /*
- * File: myset.h
- * -----------
- * This interface exports the Set class, a collection for storing a set
+ * File: myhashset.h
+ * -----------------
+ * This interface exports the HashSet class, a collection for storing a set
  * of distince elements.
  */
-#ifndef _myset_h
-#define _myset_h
+#ifndef _myhashset_h
+#define _myhashset_h
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "mymap.h"
+#include "myhashmap.h"
 #include "myvector.h"
 
 
 /*
- * Class: MySet<ValueType>
- * -----------------------
- * This template class stores a collection of distinct element.
- * 集合内部使用二叉搜索树（BST）结构。由于选择了这种内部表示法，存储在集合中的元素类型的 ValueType
- * 必须通过 less 函数和/或 < 操作符定义自然排序，以便对元素进行比较和排序。
- * 基于范围的 for 循环将按排序顺序遍历元素。添加/查找/删除元素的 Set 操作只需运行 O(logN) 时间。
- * O(logN)的时间复杂度基于BST是平衡的情况下，目前没有保证树的平衡性。
+ * class HashSet<ValueType>
+ * ------------------------
+ * 该类存储不同元素的集合。该类实现了存储不同元素集合的高效抽象。
+ * 除了使用哈希表作为底层表示之外，该类与 Set 类完全相同。HashSet 类的优点是运行时间恒定，
+ * 而 Set 类的运行时间为 O(log N)。HashSet 的缺点是，基于范围的 for 循环和其他迭代模式
+ * 会以不可预测的、看似随机的顺序访问元素。添加/访问/删除元素的 HashSet 操作运行时间为 O(1)。
  *
- * 参考：https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/Set
+ * 参考：https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/HashSet
  * 时间：
- *      1. 2024.4.13: 第一版
- *      2. 2024.4.14: 添加operator>> 以支持输入
+ *      1. 2024.4.14: 第一版
  */
 
 template <typename ValueType>
-class MySet{
+class MyHashSet{
 public:
     /*
-     * Constructor: MySet
-     * Usage: Set<ValueType> Set;
+     * Constructor: MyHashSet
+     * Usage: HashSet<ValueType> Set;
      * --------------------------
      * Initializes an empty set of the specified value type.
      */
 
-    MySet();
+    MyHashSet();
 
     /*
-     * Destructor: ~Set
-     * ----------------
+     * Destructor: ~MyHashSet
+     * ----------------------
      * Frees any heap storage associated with set.
      */
-    ~MySet();
+    ~MyHashSet();
 
     /*
      * Method: size
@@ -99,7 +97,7 @@ public:
      *
      * If you want a new set, consider set1 - set2 instead.
      */
-    MySet<ValueType> & difference(const MySet<ValueType> &set2);
+    MyHashSet<ValueType> & difference(const MyHashSet<ValueType> &set2);
 
     /*
      * Method: equals
@@ -108,13 +106,13 @@ public:
      * Returns true if the two sets contain exactly the same element values.
      * Identical in behavior to the == operator.
      */
-    bool equals(const MySet<ValueType>& set2) const;
+    bool equals(const MyHashSet<ValueType>& set2) const;
 
     /*
      * Method: first
      * Usage: ValueType value = set.first();
      * -------------------------------------
-     * Returns the first value in the set when considered in sorted order.
+     * Returns the first value in the hashset when considered in sorted order.
      * If set is empty, first signals an error.
      */
     ValueType first() const;
@@ -127,7 +125,7 @@ public:
      * Returns a reference to this set, which has been modified in place.
      * If you want a new set, consider set1 * set2 instead.
      */
-    MySet<ValueType>& intersect(const MySet<ValueType>& set2);
+    MyHashSet<ValueType>& intersect(const MyHashSet<ValueType>& set2);
 
     /*
      * Method: clear
@@ -144,7 +142,7 @@ public:
      * Implements the subset relation on sets. It returns true if every
      * element of this set is contained in set2.
      */
-    bool isSubsetOf(const MySet<ValueType> &set2) const;
+    bool isSubsetOf(const MyHashSet<ValueType> &set2) const;
 
     /*
      * Method: isSupersetOf
@@ -152,7 +150,7 @@ public:
      * ---------------------------------------
      * Returns true if every element of set2 is contained in this set.
      */
-    bool isSupersetOf(const MySet<ValueType> & set2) const;
+    bool isSupersetOf(const MyHashSet<ValueType> & set2) const;
 
     /*
      * Method: last
@@ -168,7 +166,7 @@ public:
      * -------------------
      * Returns true if set1 and set2 contain the same elements.
      */
-    bool operator==(const MySet<ValueType> &set2) const;
+    bool operator==(const MyHashSet<ValueType> &set2) const;
 
     /*
      * Operator: !=
@@ -176,7 +174,7 @@ public:
      * -------------------
      * Returns true if set1 and set2 are different.
      */
-    bool operator!=(const MySet<ValueType> &set2) const;
+    bool operator!=(const MyHashSet<ValueType> &set2) const;
 
     /*
      * Operator: +
@@ -188,8 +186,8 @@ public:
      * the set formed by adding a single element.
      */
 
-    MySet<ValueType> operator+(const MySet<ValueType> &set2) const;
-    MySet<ValueType> operator+(const ValueType &value) const;
+    MyHashSet<ValueType> operator+(const MyHashSet<ValueType> &set2) const;
+    MyHashSet<ValueType> operator+(const ValueType &value) const;
 
     /*
      * Operator: *
@@ -199,7 +197,7 @@ public:
      * elements that appear in both.
      */
 
-    MySet<ValueType> operator*(const MySet<ValueType> &set2) const;
+    MyHashSet<ValueType> operator*(const MyHashSet<ValueType> &set2) const;
 
     /*
      * Operator: -
@@ -211,8 +209,8 @@ public:
      * the set formed by removing a single element.
      */
 
-    MySet<ValueType> operator-(const MySet<ValueType> &set2) const;
-    MySet<ValueType> operator-(const ValueType &value) const;
+    MyHashSet<ValueType> operator-(const MyHashSet<ValueType> &set2) const;
+    MyHashSet<ValueType> operator-(const ValueType &value) const;
 
     /*
      * Operator: +=
@@ -221,8 +219,8 @@ public:
      * ---------------------
      * Adds all elements from set2 (or the single specified value) to set1.
      */
-    MySet<ValueType> & operator +=(const MySet<ValueType> &set2);
-    MySet<ValueType> & operator+=(const ValueType &value);
+    MyHashSet<ValueType> & operator +=(const MyHashSet<ValueType> &set2);
+    MyHashSet<ValueType> & operator+=(const ValueType &value);
 
     /*
      * Operator: *=
@@ -230,7 +228,7 @@ public:
      * --------------------
      * Removes any elements from set1 that are not present in set2.
      */
-    MySet<ValueType>& operator *= (const MySet<ValueType> &set2);
+    MyHashSet<ValueType>& operator *= (const MyHashSet<ValueType> &set2);
 
     /*
      * Operator: -=
@@ -239,8 +237,8 @@ public:
      * ---------------------
      * Removes all elements from set2 (or a single value) from set1.
      */
-    MySet<ValueType>& operator-=(const MySet<ValueType> &set2);
-    MySet<ValueType>& operator-=(const ValueType &value);
+    MyHashSet<ValueType>& operator-=(const MyHashSet<ValueType> &set2);
+    MyHashSet<ValueType>& operator-=(const ValueType &value);
 
     /*
      * Method: toString
@@ -261,14 +259,14 @@ public:
      * to this set, which has been modified in place. If you want a
      * new set, consider set1 + set2 instead.
      */
-    MySet& unionWith(const MySet<ValueType> & set2);
+    MyHashSet& unionWith(const MyHashSet<ValueType> & set2);
     /*
      *  deepCopy
      *  copyConstructor and assignment operator
      *  default version is fine, because we have MyMap ~.
      */
-    MySet(const MySet<ValueType> &src) = default;
-    MySet<ValueType>& operator=(const MySet<ValueType> &src) = default;
+    MyHashSet(const MyHashSet<ValueType> &src) = default;
+    MyHashSet<ValueType>& operator=(const MyHashSet<ValueType> &src) = default;
 
     // The private section of the class goes here.
 
@@ -283,7 +281,7 @@ public:
      */
 private:
     /* Instance variables */
-    MyMap<ValueType, bool> map;     // Map used to store the elements
+    MyHashMap<ValueType, bool> map;     // Map used to store the elements
 
 };
 
@@ -296,12 +294,12 @@ private:
  * the underlying representation.
  */
 template <typename ValueType>
-MySet<ValueType>::MySet() {
+MyHashSet<ValueType>::MyHashSet() {
     /* Empty */
 }
 
 template <typename ValueType>
-MySet<ValueType>::~MySet() {
+MyHashSet<ValueType>::~MyHashSet() {
     /* Empty */
 }
 
@@ -312,54 +310,54 @@ MySet<ValueType>::~MySet() {
  */
 
 template <typename ValueType>
-int MySet<ValueType>::size() const {
+int MyHashSet<ValueType>::size() const {
     return map.size();
 }
 
 template <typename ValueType>
-bool MySet<ValueType>::isEmpty() const {
+bool MyHashSet<ValueType>::isEmpty() const {
     return map.isEmpty();
 }
 
 template <typename ValueType>
-void MySet<ValueType>::add(const ValueType &value) {
+void MyHashSet<ValueType>::add(const ValueType &value) {
     map.put(value, true);
 }
 
 template <typename ValueType>
-void MySet<ValueType>::remove(const ValueType &value) {
+void MyHashSet<ValueType>::remove(const ValueType &value) {
     map.remove(value);
 }
 
 template <typename ValueType>
-bool MySet<ValueType>::contains(const ValueType &value) const {
+bool MyHashSet<ValueType>::contains(const ValueType &value) const {
     return map.containsKey(value);
 }
 
 template <typename ValueType>
-MySet<ValueType> & MySet<ValueType>::difference(const MySet<ValueType> &set2) {
+MyHashSet<ValueType> & MyHashSet<ValueType>::difference(const MyHashSet<ValueType> &set2) {
     return *this -= set2;
 }
 
 template <typename ValueType>
-bool MySet<ValueType>::equals(const MySet<ValueType>& set2) const {
+bool MyHashSet<ValueType>::equals(const MyHashSet<ValueType>& set2) const {
     return *this == set2;
 }
 
 template <typename ValueType>
-ValueType MySet<ValueType>::first() const {
+ValueType MyHashSet<ValueType>::first() const {
     if(isEmpty()) throw std::out_of_range("Set is empty.");
     MyVector<ValueType> values = (this->map).keys();
     return values[0];
 }
 
 template <typename ValueType>
-MySet<ValueType>& MySet<ValueType>::intersect(const MySet<ValueType>& set2) {
+MyHashSet<ValueType>& MyHashSet<ValueType>::intersect(const MyHashSet<ValueType>& set2) {
     return (*this) *= set2;
 }
 
 template <typename ValueType>
-void MySet<ValueType>::clear() {
+void MyHashSet<ValueType>::clear() {
     map.clear();
 }
 
@@ -370,7 +368,7 @@ void MySet<ValueType>::clear() {
  * set is an element of the second.
  */
 template <typename ValueType>
-bool MySet<ValueType>::isSubsetOf(const MySet<ValueType> &set2) const {
+bool MyHashSet<ValueType>::isSubsetOf(const MyHashSet<ValueType> &set2) const {
     MyVector<ValueType> values = (this->map).keys();
     for(int i = 0; i < values.size(); ++i) {
         if(!set2.contains(values[i])) {
@@ -381,12 +379,12 @@ bool MySet<ValueType>::isSubsetOf(const MySet<ValueType> &set2) const {
 }
 
 template <typename ValueType>
-bool MySet<ValueType>::isSupersetOf(const MySet<ValueType> & set2) const {
+bool MyHashSet<ValueType>::isSupersetOf(const MyHashSet<ValueType> & set2) const {
     return set2.isSubsetOf(*this);
 }
 
 template <typename ValueType>
-ValueType MySet<ValueType>::last() const {
+ValueType MyHashSet<ValueType>::last() const {
     if(isEmpty()) throw std::out_of_range("Set is empty.");
     MyVector<ValueType> values = (this->map).keys();
     return values[values.size()-1];
@@ -401,12 +399,12 @@ ValueType MySet<ValueType>::last() const {
  */
 
 template <typename ValueType>
-bool MySet<ValueType>::operator == (const MySet<ValueType> &set2) const {
+bool MyHashSet<ValueType>::operator == (const MyHashSet<ValueType> &set2) const {
     return isSubsetOf(set2) && set2.isSubsetOf(*this);
 }
 
 template <typename ValueType>
-bool MySet<ValueType>::operator != (const MySet<ValueType> &set2) const {
+bool MyHashSet<ValueType>::operator != (const MyHashSet<ValueType> &set2) const {
     return !((*this) == set2);
 }
 
@@ -417,10 +415,10 @@ bool MySet<ValueType>::operator != (const MySet<ValueType> &set2) const {
  * from the second to it.
  */
 template <typename ValueType>
-MySet<ValueType> MySet<ValueType>::operator+ (const MySet<ValueType> &set2) const {
+MyHashSet<ValueType> MyHashSet<ValueType>::operator+ (const MyHashSet<ValueType> &set2) const {
 
-    MySet<ValueType> unionSet = *this;
-    MySet<ValueType> difference = set2 - (*this);
+    MyHashSet<ValueType> unionSet = *this;
+    MyHashSet<ValueType> difference = set2 - (*this);
     MyVector<ValueType> values = difference.map.keys();
     for(int i = 0; i < values.size(); ++i) {
         unionSet.add(values[i]);
@@ -431,9 +429,9 @@ MySet<ValueType> MySet<ValueType>::operator+ (const MySet<ValueType> &set2) cons
 
 
 template <typename ValueType>
-MySet<ValueType> MySet<ValueType>::operator+ (const ValueType &value) const {
+MyHashSet<ValueType> MyHashSet<ValueType>::operator+ (const ValueType &value) const {
 
-    MySet<ValueType> unionSet = (*this);
+    MyHashSet<ValueType> unionSet = (*this);
     unionSet.add(value);
     return unionSet;
 }
@@ -445,8 +443,8 @@ MySet<ValueType> MySet<ValueType>::operator+ (const ValueType &value) const {
  * appera in both sets.
  */
 template <typename ValueType>
-MySet<ValueType> MySet<ValueType>::operator* (const MySet<ValueType> &set2) const {
-    MySet<ValueType> intersectionSet;
+MyHashSet<ValueType> MyHashSet<ValueType>::operator* (const MyHashSet<ValueType> &set2) const {
+    MyHashSet<ValueType> intersectionSet;
 
     MyVector<ValueType> values = (*this).map.keys();
     for(int i = 0; i < values.size(); ++i) {
@@ -464,9 +462,9 @@ MySet<ValueType> MySet<ValueType>::operator* (const MySet<ValueType> &set2) cons
  * if they do not appear in the second.
  */
 template <typename ValueType>
-MySet<ValueType> MySet<ValueType>::operator- (const MySet<ValueType> &set2) const {
+MyHashSet<ValueType> MyHashSet<ValueType>::operator- (const MyHashSet<ValueType> &set2) const {
 
-    MySet<ValueType> differenceSet;
+    MyHashSet<ValueType> differenceSet;
     MyVector<ValueType> values = (*this).map.keys();
     for(int i = 0; i < values.size(); ++i) {
         if(!set2.contains(values[i])) {
@@ -478,8 +476,8 @@ MySet<ValueType> MySet<ValueType>::operator- (const MySet<ValueType> &set2) cons
 }
 
 template <typename ValueType>
-MySet<ValueType> MySet<ValueType>::operator- (const ValueType &value) const {
-    MySet<ValueType> differenceSet = *this;
+MyHashSet<ValueType> MyHashSet<ValueType>::operator- (const ValueType &value) const {
+    MyHashSet<ValueType> differenceSet = *this;
     differenceSet.remove(value);
     return differenceSet;
 }
@@ -491,58 +489,58 @@ MySet<ValueType> MySet<ValueType>::operator- (const ValueType &value) const {
  * the operators that create new sets.
  */
 template <typename ValueType>
-MySet<ValueType>& MySet<ValueType>::operator+= (const MySet<ValueType> &set2) {
+MyHashSet<ValueType>& MyHashSet<ValueType>::operator+= (const MyHashSet<ValueType> &set2) {
     *this = *this + set2;
     return *this;
 }
 
 
 template <typename ValueType>
-MySet<ValueType>& MySet<ValueType>::operator+= (const ValueType &value) {
+MyHashSet<ValueType>& MyHashSet<ValueType>::operator+= (const ValueType &value) {
     *this = *this + value;
     return *this;
 }
 
 template <typename ValueType>
-MySet<ValueType> & MySet<ValueType>::operator*= (const MySet<ValueType> &set2) {
+MyHashSet<ValueType> & MyHashSet<ValueType>::operator*= (const MyHashSet<ValueType> &set2) {
     *this  = (*this) * set2;
     return *this;
 }
 
 template <typename ValueType>
-MySet<ValueType> & MySet<ValueType>::operator-= (const MySet<ValueType> &set2) {
+MyHashSet<ValueType> & MyHashSet<ValueType>::operator-= (const MyHashSet<ValueType> &set2) {
     *this = *this - set2;
     return *this;
 
 }
 
 template <typename ValueType>
-MySet<ValueType> & MySet<ValueType>::operator-= (const ValueType &value) {
+MyHashSet<ValueType> & MyHashSet<ValueType>::operator-= (const ValueType &value) {
     *this = *this - value;
     return *this;
 }
 
 
 template <typename ValueType>
-std::string MySet<ValueType>::toString() const {
+std::string MyHashSet<ValueType>::toString() const {
     MyVector<ValueType> keys = this->map.keys();
     return keys.toString();
 }
 
 template <typename ValueType>
-MySet<ValueType> & MySet<ValueType>::unionWith(const MySet<ValueType> & set2) {
+MyHashSet<ValueType> & MyHashSet<ValueType>::unionWith(const MyHashSet<ValueType> & set2) {
     return (*this) += set2;
 }
 
 
 
 template <typename ValueType>
-std::ostream & operator <<(std::ostream & os, const MySet<ValueType> &set) {
+std::ostream & operator <<(std::ostream & os, const MyHashSet<ValueType> &set) {
     return os << set.toString();
 }
 
 template <typename ValueType>
-std::istream & operator>> (std::istream &is, MySet<ValueType> &set) {
+std::istream & operator>> (std::istream &is, MyHashSet<ValueType> &set) {
     MyVector<ValueType> values;
     is >> values;
     for(int i = 0; i < values.size(); ++i) {
@@ -551,4 +549,4 @@ std::istream & operator>> (std::istream &is, MySet<ValueType> &set) {
     return is;
 }
 
-#endif //_myset_h
+#endif //_myhashset_h

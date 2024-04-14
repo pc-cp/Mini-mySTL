@@ -35,7 +35,6 @@
                       这样bool equals(const MyMap<KeyType, ValueType>& map) const;就不需要
                       bool equalsRec(const TreeNode *lhs, const TreeNode *rhs) const;
                       尽管我原先是为了使MyMap对MySet更加支持 bool isSubsetOf(const MySet<ValueType> &set2) const;
-                      为了实现MySet，或许添加 keys() 和 values() 是美好的
  */
 
 template <typename KeyType, typename ValueType>

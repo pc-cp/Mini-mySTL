@@ -1,1 +1,1 @@
-g++ -std=c++11 -o main main.cpp myhashcode.cpp
+g++ -std=c++11 -I ../vector -o main main.cpp myhashcode.cpp

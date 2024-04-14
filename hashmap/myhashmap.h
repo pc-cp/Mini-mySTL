@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 #include "myhashcode.h"
-
+#include "myvector.h"
 /*
  * 该类实现了key与value之间的高效关联。该类与 stanford HashMap 类的接口几乎相同，
  * 它使用哈希表作为底层表示同时维持一个负载系数，这使得它能在 O(1) 平均时间内运行。
@@ -15,6 +15,7 @@
  * 参考: https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/HashMap#Method:toString
  * 更新：
  *      1. 2024.4.8：重写并添加中文注释
+ *      2. 2024.4.14：添加"myvector.h" 以实现keys(), values()
  */
 template <typename KeyType, typename ValueType>
 class MyHashMap {
@@ -50,6 +51,18 @@ public:
      * 如果hashmap中没有key-value对返回true
      */
     bool isEmpty() const;
+
+
+    /*
+     * Method: keys;
+     * Usage: MyVector<KeyType> keys = map.keys();
+     * -------------------------------------------
+     * Returns a Vector copy of all keys in this map.
+     * The keys will appear in the same order that a for-each loop
+     * over the map would produce them. Because a map cannot contain duplicate keys,
+     * the elements of the vector will be unique.
+     */
+    MyVector<KeyType> keys() const;
 
     /*
      * 方法：put
@@ -108,6 +121,17 @@ public:
      */
 
     std::string toString() const;
+
+    /*
+     * Method: values
+     * Usage: MyVector<ValueType> values = map.values();
+     * -------------------------------------------------
+     * Returns a Vector copy of all values in this map. The values will appear in the
+     * same order that a for-each loop over the map would produce them. A map can contain
+     * duplicate values, so the elements of the vector are not guaranteed to be unique.
+     */
+    MyVector<ValueType> values() const;
+
 
     /*
      * 拷贝构造函数和赋值操作符进行deepCopy
@@ -206,6 +230,16 @@ private:
      * hashmap之间管理的散列表独立。
      */
     void deepCopy(const MyHashMap<KeyType, ValueType> &src);
+
+    /*
+     * 方法：sequentialTraversal
+     * 使用：sequentialTraversal(traversalResult);
+     * --------------------------
+     * 像keys()和values()需要得到hashTable中所有的keys和values
+     * 所以这里通过下标 顺序遍历 buckets这个指针数组。将{key: value}
+     * 放入traversalResult中
+     */
+    void sequentialTraversal(MyVector<std::pair<KeyType, ValueType>> &vec) const;
 };
 
 
@@ -257,6 +291,28 @@ bool MyHashMap<KeyType, ValueType>::isEmpty() const {
     return entries == 0;
 }
 
+template <typename KeyType, typename ValueType>
+MyVector<KeyType> MyHashMap<KeyType, ValueType>::keys() const {
+    MyVector<std::pair<KeyType, ValueType>> keysAndValues;
+    sequentialTraversal(keysAndValues);
+
+    MyVector<KeyType> keys;
+    for(int i = 0; i < keysAndValues.size(); ++i) {
+        keys.add(keysAndValues[i].first);
+    }
+    return keys;
+}
+
+template <typename KeyType, typename ValueType>
+void MyHashMap<KeyType, ValueType>::sequentialTraversal(MyVector<std::pair<KeyType, ValueType>> &vec) const {
+    for(int i = 0; i < nBuckets; ++i) {
+        Cell *cp = buckets[i];
+        while(cp) {
+            vec.add({cp->key, cp->value});
+            cp = cp->link;
+        }
+    }
+}
 
 /*
  * 实现笔记：put
@@ -369,6 +425,7 @@ bool MyHashMap<KeyType, ValueType>::equals(const MyHashMap<KeyType, ValueType> &
     return true;
 }
 
+
 /*
  * 使用字符串输出流ostringstream来将key-value转换成字符串表示
  * 然后使用ostringstream的str()方法作为返回值
@@ -388,6 +445,18 @@ std::string MyHashMap<KeyType, ValueType>::toString() const{
         }
     }
     return oss.str();
+}
+
+template <typename KeyType, typename ValueType>
+MyVector<ValueType> MyHashMap<KeyType, ValueType>::values() const {
+    MyVector<std::pair<KeyType, ValueType>> keysAndValues;
+    sequentialTraversal(keysAndValues);
+
+    MyVector<ValueType> values;
+    for(int i = 0; i < keysAndValues.size(); ++i) {
+        values.add(keysAndValues[i].second);
+    }
+    return values;
 }
 
 /*
