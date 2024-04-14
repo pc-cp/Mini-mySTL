@@ -7,14 +7,15 @@
  * 参考：https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/Vector.html
  * 时间：
  *      1. 2024.4.12: 第一版
+ *      2. 2024.4.14: 添加operator>> 以支持输入
  *
  */
 
 #ifndef _myvector_h
 #define _myvector_h
 #include <sstream>
-#include <ostream>
-
+#include <iostream>
+#include <cctype>
 template <typename ValueType>
 class MyVector {
 public:
@@ -443,6 +444,65 @@ void MyVector<ValueType>::expandCapacity() {
 template <typename ValueType>
 std::ostream& operator << (std::ostream& os, const MyVector<ValueType> &vec) {
     return os << vec.toString();
+}
+
+template <typename ValueType>
+std::istream& operator >>(std::istream & is, MyVector<ValueType> &vec) {
+    std::string input, formattedString;
+    std::getline(is, input);    // 读取一行
+
+    for (char ch : input) {
+        //  添加input[i] == '.'以适应浮点数
+        if (isalnum(ch) || ch == '.') {
+            formattedString += ch;
+        }
+        // Comma as the default separator
+        else if (ch == ',') {
+            formattedString += "\n";
+        }
+    }
+
+    ValueType value;
+    std::istringstream iss(formattedString);
+    while(iss >> value) {
+
+        vec.add(value);
+
+        /*
+         * 确定是否在预期的类型读取后立即遇到换行符，这是一种很好的方法来进一步验证输入的格式正确性。
+         *
+         * 确保iss是以ValueType类型分割，例如ValueType为char，
+         * 而iss为 "aaa\nb[EOF]",则aaa不是正确的输入，尽管它们对char类型是正确的。
+         * 因为用户输入的是"aaa, b"，而不是"a, a, a, b" -> "a\na\na\nb[EOF]".
+         *
+         * 同时它也能够检查下一个字符是不是格式正确的字符，例如ValueType为int，
+         * 而用户输入"11a, 22"则触发条件，但是"a11, 22"是由while循环失败退出。
+         */
+        if(!iss.eof()) {
+            int aheadCharacter = iss.get();
+            if((aheadCharacter != '\n')) {
+                iss.setstate(std::ios::failbit);
+                break;
+            }
+            iss.unget();
+        }
+    }
+
+    /*
+     * https://stackoverflow.com/questions/29058612/what-does-rdstate-return-value-mean
+     * std::ios_base::failbit: formatted input operation got an unexpected characters.
+     *
+     * 正常的结束是iss.fail(): 1 同时 iss.eof(): 1
+     *
+     * 有两种情况使得iss.fail(): 1 同时 iss.eof(): 0
+     *      1. while(iss >> value)失败：格式转换失败，例如ValueType为int，但第一个字符为非数字字符
+     *      2. if(!iss.eof())中if((aheadCharacter != '\n'))成立
+     */
+    if(iss.fail() && !iss.eof()) {
+        is.setstate(std::ios::failbit);
+    }
+
+    return is;
 }
 
 #endif
