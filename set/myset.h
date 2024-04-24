@@ -27,6 +27,7 @@
  * 时间：
  *      1. 2024.4.13: 第一版
  *      2. 2024.4.14: 添加operator>> 以支持输入
+ *      3. 加入mapAll方法以支持callback函数，同时在>>中接收流数据前清空set中的数据(set.clear()).
  */
 
 template <typename ValueType>
@@ -270,6 +271,15 @@ public:
     MySet(const MySet<ValueType> &src) = default;
     MySet<ValueType>& operator=(const MySet<ValueType> &src) = default;
 
+    /*
+     * Method: mapAll
+     * Usage: set.mapAll(fn);
+     * ----------------------
+     * Iterates through the elements of the set and calls fn(value) for each one.
+     * The elements are processed in sorted order.
+     *
+     */
+    void mapAll(void (*fn) (const ValueType &)) const;
     // The private section of the class goes here.
 
     /*
@@ -303,6 +313,21 @@ MySet<ValueType>::MySet() {
 template <typename ValueType>
 MySet<ValueType>::~MySet() {
     /* Empty */
+    /*
+     * 在C++中，如果一个类的成员变量是对象，那么这个成员对象的析构函数
+     * 会在包含它的对象的析构函数结束时自动调用。这是C++自动调用析构函
+     * 数的一部分，以确保资源得到适当的清理。换句话说，每个对象在其生命
+     * 周期结束时都会自动调用其析构函数。
+     *
+     * 只有当您的类管理了需要显式释放的资源（如动态分配的内存、文件句柄、
+     * 网络连接等）时，您才需要在析构函数中添加代码来释放这些资源。在
+     * MySet 的情况下，所有的资源管理都被委托给了 MyMap 类，所以
+     * MySet 类不需要提供特殊的析构逻辑。
+     *
+     * 这种自动资源管理的机制是C++ RAII（Resource Acquisition
+     * Is Initialization）编程范式的核心，它确保了资源的获取即初始化，
+     * 并且在对象生命周期结束时自动释放资源，防止了资源泄漏。
+     */
 }
 
 /*
@@ -536,6 +561,9 @@ MySet<ValueType> & MySet<ValueType>::unionWith(const MySet<ValueType> & set2) {
 
 
 
+/*
+ * 对于插入操作符<< 和抽取操作符>>，因为它们的第一个参数/左操作数是流，所以它们只能是外部函数而不是class的method
+ */
 template <typename ValueType>
 std::ostream & operator <<(std::ostream & os, const MySet<ValueType> &set) {
     return os << set.toString();
@@ -545,10 +573,18 @@ template <typename ValueType>
 std::istream & operator>> (std::istream &is, MySet<ValueType> &set) {
     MyVector<ValueType> values;
     is >> values;
+
+    set.clear();
     for(int i = 0; i < values.size(); ++i) {
         set.add(values[i]);
     }
     return is;
+}
+
+template <typename ValueType>
+void MySet<ValueType>::mapAll(void (*fn) (const ValueType &)) const {
+    MyVector<ValueType> keys = this->map.keys();
+    keys.mapAll(fn);
 }
 
 #endif //_myset_h

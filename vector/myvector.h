@@ -8,6 +8,7 @@
  * 时间：
  *      1. 2024.4.12: 第一版
  *      2. 2024.4.14: 添加operator>> 以支持输入
+ *      3. 2024.4.24: 添加mapAll以支持callback函数，同时在>>中加入vec.clear()以接收流数据前清空容器。
  *
  */
 
@@ -174,6 +175,15 @@ public:
      */
     MyVector(const MyVector<ValueType> &src);
     MyVector<ValueType> & operator=(const MyVector<ValueType> &src);
+
+    /*
+     * Method: mapAll
+     * Usage: vec.mapAll(fn);
+     * ----------------------
+     * Calls the specified function on each element
+     * of this vector in order of ascending index.
+     */
+    void mapAll(void (*fn) (const ValueType &)) const;
 
     /*
      * Private section
@@ -462,6 +472,8 @@ std::istream& operator >>(std::istream & is, MyVector<ValueType> &vec) {
         }
     }
 
+    // 在接收流数据前清空容器
+    vec.clear();
     ValueType value;
     std::istringstream iss(formattedString);
     while(iss >> value) {
@@ -503,6 +515,19 @@ std::istream& operator >>(std::istream & is, MyVector<ValueType> &vec) {
     }
 
     return is;
+}
+
+
+/*
+ * Implementation notes: mapAll
+ * ----------------------------
+ * This method uses a for loop to call fn on every element.
+ */
+template <typename ValueType>
+void MyVector<ValueType>::mapAll(void (*fn)(const ValueType &)) const {
+    for(int i = 0; i < count; ++i) {
+        fn(array[i]);
+    }
 }
 
 #endif

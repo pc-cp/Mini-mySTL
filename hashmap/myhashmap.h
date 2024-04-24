@@ -16,6 +16,7 @@
  * 更新：
  *      1. 2024.4.8：重写并添加中文注释
  *      2. 2024.4.14：添加"myvector.h" 以实现keys(), values()
+ *      3. 2024.4.24: 添加mapAll支持callback函数
  */
 template <typename KeyType, typename ValueType>
 class MyHashMap {
@@ -181,6 +182,14 @@ public:
      * 每个桶都是一个所有相同hash Code对应key-value的链接列表，这些key散列到该桶。
      */
 
+    /*
+     * Method: mapAll
+     * Usage: map.mapAll(fn);
+     * ----------------------
+     * Iterates through the map entries and calls fn(key, value) for each one.
+     * The entries are processed in unpredictable order.
+     */
+    void mapAll(void (*fn) (const KeyType &, const ValueType &)) const;
 private:
 
     /* 散列表中类型的定义（拉链法） */
@@ -619,6 +628,17 @@ bool MyHashMap<KeyType, ValueType>::operator == (const MyHashMap<KeyType, ValueT
 template <typename KeyType, typename ValueType>
 bool MyHashMap<KeyType, ValueType>::operator != (const MyHashMap<KeyType, ValueType> &hmp2) const {
     return !(*this == hmp2);
+}
+
+template <typename KeyType, typename ValueType>
+void MyHashMap<KeyType, ValueType>::mapAll(void (*fn) (const KeyType &, const ValueType &)) const {
+    for(int bucket = 0; bucket < nBuckets; ++bucket) {
+        Cell *temp = buckets[bucket];
+        while(temp != nullptr) {
+            fn(temp->key, temp->value);
+            temp = temp->link;
+        }
+    }
 }
 
 #endif // _myhashmap_h

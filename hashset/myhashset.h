@@ -25,6 +25,7 @@
  * 参考：https://web.stanford.edu/dept/cs_edu/resources/cslib_docs/HashSet
  * 时间：
  *      1. 2024.4.14: 第一版
+ *      2. 2024.4.24: 添加mapAll方法
  */
 
 template <typename ValueType>
@@ -267,6 +268,15 @@ public:
      */
     MyHashSet(const MyHashSet<ValueType> &src) = default;
     MyHashSet<ValueType>& operator=(const MyHashSet<ValueType> &src) = default;
+
+    /*
+     * Method: mapAll
+     * Usage: set.mapAll(fn);
+     * ----------------------
+     * Iterates through the elements of the HashSet and calls fn(value) for each one.
+     * The elements are processed in unpredictable order.
+     */
+    void mapAll(void (*fn) (const ValueType &)) const;
 
     // The private section of the class goes here.
 
@@ -543,10 +553,17 @@ template <typename ValueType>
 std::istream & operator>> (std::istream &is, MyHashSet<ValueType> &set) {
     MyVector<ValueType> values;
     is >> values;
+    set.clear();
     for(int i = 0; i < values.size(); ++i) {
         set.add(values[i]);
     }
     return is;
 }
+template <typename ValueType>
+void MyHashSet<ValueType>::mapAll(void (*fn) (const ValueType &)) const {
+    MyVector<ValueType> keys = this->map.keys();
+    keys.mapAll(fn);
+}
+
 
 #endif //_myhashset_h

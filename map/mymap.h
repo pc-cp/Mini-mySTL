@@ -35,6 +35,7 @@
                       这样bool equals(const MyMap<KeyType, ValueType>& map) const;就不需要
                       bool equalsRec(const TreeNode *lhs, const TreeNode *rhs) const;
                       尽管我原先是为了使MyMap对MySet更加支持 bool isSubsetOf(const MySet<ValueType> &set2) const;
+        4. 添加mapAll支持callback函数
  */
 
 template <typename KeyType, typename ValueType>
@@ -184,6 +185,14 @@ public:
     MyMap(const MyMap<KeyType, ValueType> &src);
     MyMap<KeyType, ValueType>& operator= (const MyMap<KeyType, ValueType> &src);
 
+    /*
+     * Method: mapAll
+     * Usage: map.mapAll(fn);
+     * ----------------------
+     * Iterates through the map entries and calls fn(key, value) for each one.
+     * The keys are processed in ascending order, as defined by the comparison function.
+     */
+    void mapAll(void (*fn) (const KeyType &, const ValueType &)) const;
 private:
     struct TreeNode {
         KeyType key;
@@ -256,6 +265,8 @@ private:
      * 该函数进行遍历，并且将输出存入在ostream对象内
      */
     void inOrder(TreeNode *root, MyVector<std::pair<KeyType, ValueType>> &res) const;
+
+    void mapAll(TreeNode *root, void (*fn) (const KeyType &, const ValueType &)) const;
 };
 
 
@@ -582,6 +593,20 @@ typename MyMap<KeyType, ValueType>::TreeNode *  MyMap<KeyType, ValueType>::isExi
         else {
             return isExist(root->right, key);
         }
+    }
+}
+
+template <typename KeyType, typename ValueType>
+void MyMap<KeyType, ValueType>::mapAll(void (*fn) (const KeyType &, const ValueType &)) const {
+    mapAll(root, fn);
+}
+
+template <typename KeyType, typename ValueType>
+void MyMap<KeyType, ValueType>::mapAll(TreeNode *root, void (*fn) (const KeyType &, const ValueType &)) const {
+    if(root != nullptr) {
+        mapAll(root->left, fn);
+        fn(root->key, root->value);
+        mapAll(root->right, fn);
     }
 }
 
