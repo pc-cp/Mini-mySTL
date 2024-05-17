@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iostream>
 #include <cctype>
+
 template <typename ValueType>
 class MyVector {
 public:
