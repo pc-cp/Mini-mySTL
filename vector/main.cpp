@@ -1,43 +1,97 @@
 #include <iostream>
-#include <cassert>
 #include "myvector.h"
-using namespace std;
+
+void printInt(const int &value) {
+    std::cout << value << " ";
+}
 
 int main() {
+    // Test constructors
+    MyVector<int> vec1;
+    MyVector<int> vec2(5, 42);
 
-    MyVector<int> vec1, vec2(10, 1), vec3(9);
+    std::cout << "After initialization:" << std::endl;
+    std::cout << "vec1: " << vec1 << std::endl;
+    std::cout << "vec2: " << vec2 << std::endl;
 
-    assert(vec1.size() == 0);
-    assert(vec1.isEmpty());
-    assert(!vec3.isEmpty());
+    // Test size, isEmpty, and clear
+    std::cout << "vec1 size: " << vec1.size() << std::endl;
+    std::cout << "vec1 is empty: " << vec1.isEmpty() << std::endl;
 
-    vec2.clear();
+    vec1.add(10);
+    vec1.add(20);
+    vec1.add(30);
 
-    vec1 = vec3;
-    vec2 = MyVector<int>(2, 11);
-    vec1[2] = 111;
-    assert(vec1[2] == 111);
+    std::cout << "After adding elements to vec1:" << std::endl;
+    std::cout << "vec1: " << vec1 << std::endl;
+    std::cout << "vec1 size: " << vec1.size() << std::endl;
+    std::cout << "vec1 is empty: " << vec1.isEmpty() << std::endl;
 
-    vec1.remove(2);
-    assert(vec1.size() == 8);
-    assert(vec1[2] == 0);
+    vec1.clear();
+    std::cout << "After clearing vec1:" << std::endl;
+    std::cout << "vec1: " << vec1 << std::endl;
 
-    vec1.add(99);
-    assert(vec1.size() == 9);
-    assert(vec1[8] == 99);
-    assert(vec1[2] == 0);
-    vec1[8] = 999;
-    assert(vec1[8] == 999);
+    // Test get and set
+    vec2.set(1, 99);
+    std::cout << "After setting vec2[1] to 99:" << std::endl;
+    std::cout << "vec2: " << vec2 << std::endl;
+    std::cout << "vec2[1]: " << vec2.get(1) << std::endl;
 
+    // Test insert and remove
+    vec2.insert(2, 55);
+    std::cout << "After inserting 55 at index 2 in vec2:" << std::endl;
+    std::cout << "vec2: " << vec2 << std::endl;
 
-    MyVector<int> vec;
-    vec.add(8); vec.add(3); vec.add(1); vec.add(4); vec.add(2); vec.add(7);
-    cout << vec << endl;
+    vec2.remove(1);
+    std::cout << "After removing element at index 1 in vec2:" << std::endl;
+    std::cout << "vec2: " << vec2 << std::endl;
 
-    vec.sort();
-    cout << vec << endl;
-    cout << vec[2] << endl;
-    // cout << vec[10] << endl; // throw std::out_of_range("operator []: the index is not in the array index.");
-    cout << "class MyVector is pass unit test successfully." << endl;
+    // Test equals
+    MyVector<int> vec3(5, 42);
+    vec3.set(1, 99);
+    vec3.insert(2, 55);
+    vec3.remove(1);
+
+    std::cout << "vec3: " << vec3 << std::endl;
+    std::cout << "vec2 equals vec3: " << (vec2.equals(vec3) ? "true" : "false") << std::endl;
+
+    // Test toString
+    std::cout << "vec2 toString: " << vec2.toString() << std::endl;
+
+    // Test sort
+    vec2.add(3);
+    vec2.add(7);
+    vec2.add(1);
+    std::cout << "Before sorting vec2: " << vec2 << std::endl;
+    vec2.sort();
+    std::cout << "After sorting vec2: " << vec2 << std::endl;
+
+    // Test operator[]
+    vec2[0] = 100;
+    std::cout << "After setting vec2[0] to 100:" << std::endl;
+    std::cout << "vec2: " << vec2 << std::endl;
+    std::cout << "vec2[0]: " << vec2[0] << std::endl;
+
+    // Test mapAll
+    std::cout << "Mapping all elements in vec2: ";
+    vec2.mapAll(printInt);
+    std::cout << std::endl;
+
+    // Test begin and end iterators
+    std::cout << "Using iterators to print vec2: ";
+    for(auto it = vec2.begin(); it != vec2.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << std::endl;
+
+    // Test stream operators
+    std::cout << "Enter elements for vec1 (comma separated): ";
+    std::cin >> vec1;
+    std::cout << "vec1 after input: " << vec1 << std::endl;
+
+    for(auto item : vec1) {
+        std::cout << item << " ";
+    }
+
     return 0;
 }

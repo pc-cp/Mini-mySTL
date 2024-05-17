@@ -17,7 +17,6 @@
 #include <sstream>
 #include <iostream>
 #include <cctype>
-
 template <typename ValueType>
 class MyVector {
 public:
@@ -194,6 +193,10 @@ public:
      * dynamic array of the specified element type. If the space in the
      * array is ever exhausted, the implementation doubles the array capacity.
      */
+
+    typedef ValueType * iterator;
+    iterator begin() const;
+    iterator end() const;
 
 private:
     static const int INITIAL_CAPACITY = 10;
@@ -376,7 +379,9 @@ void MyVector<ValueType>::remove(int index) {
 
 template <typename ValueType>
 void MyVector<ValueType>::add(ValueType value) {
-    insert(count, value);
+    if(count == capacity) expandCapacity();
+    array[count] = value;
+    count++;
 }
 
 /*
@@ -467,7 +472,7 @@ std::istream& operator >>(std::istream & is, MyVector<ValueType> &vec) {
         if (isalnum(ch) || ch == '.') {
             formattedString += ch;
         }
-        // Comma as the default separator
+            // Comma as the default separator
         else if (ch == ',') {
             formattedString += "\n";
         }
@@ -504,7 +509,7 @@ std::istream& operator >>(std::istream & is, MyVector<ValueType> &vec) {
     /*
      * https://stackoverflow.com/questions/29058612/what-does-rdstate-return-value-mean
      * std::ios_base::failbit: formatted input operation got an unexpected characters.
-     *
+     * https://cplusplus.com/reference/ios/ios/fail/
      * 正常的结束是iss.fail(): 1 同时 iss.eof(): 1
      *
      * 有两种情况使得iss.fail(): 1 同时 iss.eof(): 0
@@ -530,5 +535,16 @@ void MyVector<ValueType>::mapAll(void (*fn)(const ValueType &)) const {
         fn(array[i]);
     }
 }
+
+template <typename ValueType>
+typename MyVector<ValueType>::iterator MyVector<ValueType>::begin() const {
+    return array;
+}
+
+template <typename ValueType>
+typename MyVector<ValueType>::iterator MyVector<ValueType>::end() const {
+    return array+count;
+}
+
 
 #endif
