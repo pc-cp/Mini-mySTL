@@ -5,6 +5,7 @@
 #include <sstream>
 #include "myhashcode.h"
 #include "myvector.h"
+#include <iostream>
 /*
  * 该类实现了key与value之间的高效关联。该类与 stanford HashMap 类的接口几乎相同，
  * 它使用哈希表作为底层表示同时维持一个负载系数，这使得它能在 O(1) 平均时间内运行。
@@ -254,7 +255,7 @@ private:
 
 /* 负载系数初始化 */
 template <typename KeyType, typename ValueType>
-const double MyHashMap<KeyType, ValueType>::REHASH_THRESHOLD = 0.7;
+const double MyHashMap<KeyType, ValueType>::REHASH_THRESHOLD = 1.0;
 
 template <typename KeyType, typename ValueType>
 MyHashMap<KeyType, ValueType>::MyHashMap() {
@@ -346,6 +347,7 @@ void MyHashMap<KeyType, ValueType>::put(const KeyType &key, const ValueType &val
     cp->value = value;
 
     if(size()*1.0/nBuckets > REHASH_THRESHOLD) {
+        // std::cout << "rehashing: " << size() << std::endl;
         rehashing();
     }
 }

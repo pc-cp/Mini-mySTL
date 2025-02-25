@@ -11,10 +11,6 @@
 
 #include <iostream>
 
-extern const int HASH_SEED;
-extern const int HASH_MULTIPLIER;
-extern const int HASH_MASK;
-
 int myhashCode(const std::string &str);
 
 /*

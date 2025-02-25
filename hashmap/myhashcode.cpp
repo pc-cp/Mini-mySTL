@@ -14,11 +14,11 @@
  */
 
 // Starting point for first cycle
-extern const int HASH_SEED = 5381;
+const int HASH_SEED = 5381;
 // Multiplier for each cycle
-extern const int HASH_MULTIPLIER = 33;
+const int HASH_MULTIPLIER = 33;
 // All 1 bits except the sign
-extern const int HASH_MASK = unsigned(-1) >> 1;
+const int HASH_MASK = unsigned(-1) >> 1;
 
 int myhashCode(const std::string &str) {
     unsigned hash = HASH_SEED;
